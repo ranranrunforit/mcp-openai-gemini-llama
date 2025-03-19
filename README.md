@@ -5,6 +5,47 @@ This repository contains a basic example of how to build an AI agent using the M
 OpenAI example: https://github.com/jalr4ever/Tiny-OAI-MCP-Agent
 
 
+This is an agent based on the MCP protocol that can directly operate a SQLite database using natural language, and the LLM service is compatible with OpenAI format.
+
+What this agent do:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Main
+    participant MCP_Client
+    participant MCP_Server
+    participant LLM
+
+    Note right of MCP_Client: Initialization & Tool Registration
+    Main->>MCP_Client: Create Client Instance
+    MCP_Client->>MCP_Server: get_available_tools()
+    MCP_Server-->>MCP_Client: Return Tool List
+    MCP_Client->>LLM: Register Tools via Function Calling
+    
+    loop Interactive Session
+        User->>Main: Enter Prompt
+        Main->>LLM: Send Query
+        
+        Note right of LLM: LLM autonomously decides tool usage
+        
+        alt LLM Decides to Use Tool
+            LLM-->>Main: Request Tool Call
+            Main->>MCP_Client: Execute Tool Call
+            MCP_Client->>MCP_Server: Call Tool
+            MCP_Server-->>MCP_Client: Tool Response
+            MCP_Client-->>Main: Tool Result
+            Main->>LLM: Send Tool Result
+            LLM-->>Main: Final Response
+        else Direct Response
+            LLM-->>Main: Direct Response
+        end
+        
+        Main-->>User: Display Response
+    end
+```
+
+
 ## Setup
 
 This code sets up a simple CLI agent that can interact with a SQLite database through an MCP server. It uses the official SQLite MCP server and demonstrates:
